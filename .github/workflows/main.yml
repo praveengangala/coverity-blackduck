@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+
+  coverity:
+    build:
+      context: ./coverity
+      dockerfile: Dockerfile
+    container_name: coverity-cli
+    volumes:
+      - ./:/src
+    working_dir: /src
+    entrypoint: ["/bin/bash"]
+    stdin_open: true
+    tty: true
+
+  blackduck:
+    image: blackducksoftware/synopsys-detect
+    container_name: blackduck-scan
+    volumes:
+      - ./:/src
+    working_dir: /src
+    environment:
+      - DETECT_PROJECT_NAME=my-project
+      - DETECT_PROJECT_VERSION_NAME=1.0.0
+      - DETECT_SOURCE_PATH=/src
+      - BLACKDUCK_URL=${BLACKDUCK_URL}
+      - BLACKDUCK_API_TOKEN=${BLACKDUCK_API_TOKEN}
+    entrypoint:
+      [
+        "./synopsys-detect.sh",
+        "--blackduck.url=${BLACKDUCK_URL}",
+        "--blackduck.api.token=${BLACKDUCK_API_TOKEN}",
+        "--detect.project.name=my-project",
+        "--detect.project.version.name=1.0.0",
+        "--detect.source.path=/src"
+      ]
